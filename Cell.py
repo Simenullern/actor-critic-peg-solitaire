@@ -12,6 +12,12 @@ class Cell:
     def get_loc(self):
         return self.loc
 
+    def remove_peg(self):
+        self.filled = False
+
+    def has_peg(self):
+        return self.filled
+
     def add_neighbor(self, neighbor):
         self.neighbors.append(neighbor)
 

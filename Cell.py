@@ -4,19 +4,22 @@ class Cell:
     def __init__(self, loc):
         self.loc = loc
         self.filled = True
-        self.will_jump = False
-        self.will_be_jumped_over = False
-        self.will_be_removed = False
+        self.will_jump = False # use?
+        self.will_be_jumped_over = False # use?
+        self.will_be_removed = False # use?
         self.neighbors = []
 
     def get_loc(self):
         return self.loc
 
+    def has_peg(self):
+        return self.filled
+
     def remove_peg(self):
         self.filled = False
 
-    def has_peg(self):
-        return self.filled
+    def put_peg(self):
+        self.filled = True
 
     def add_neighbor(self, neighbor):
         self.neighbors.append(neighbor)

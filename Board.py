@@ -1,11 +1,12 @@
 from Cell import Cell
 import networkx as nx
 import matplotlib.pyplot as plt
+import numpy as np
 from random import randrange
 
 
 class Board:
-    def __init__(self, shape='triangle', size=5, open_start_cells=[(2,2), (0,0)]):
+    def __init__(self, shape='diamond', size=5, open_start_cells=[(2,2), (0,0)]):
         assert(shape == "diamond" or shape == "triangle")
         assert(4 <= size <= 8 if shape == "triangle" else 3 <= size <= 6)
         self.shape = shape
@@ -18,8 +19,6 @@ class Board:
             self.potential_neighbors = [(-1, -1), (-1, 0), (0, -1), (0, 1), (1, 0), (1, 1)]
 
         self.open_start_cells = open_start_cells
-
-
 
     def init_board(self):
         for i in range(0, len(self.cells)):
@@ -57,10 +56,11 @@ class Board:
 
     def get_all_possible_moves(self):
         possible_moves = []
-        # Return list of tuples on the form (a, b) where a is the index to jump from and b is the index to jump to
+        # Return list of tuples on the form (a, b, c) and c is the jumping direction
+        # Algorithm:
+        # where a is the loc to jump from and b is the loc to jump to
         # for each cell, if it has a peg then get all neighbors.
-        # If the neighbor has a peg
-        # then check for neighbor if they have an open neighbor that is in the same direction
+        # If the neighbor has a peg then check for neighbor if they have an open neighbor that is in the same direction
 
         for r in range(0, len(self.cells)):
             for c in range(0, len(self.cells[r])):
@@ -78,11 +78,26 @@ class Board:
                                     neighbors_neighbor_direction = (neighbors_neighbor_loc[0] - neighbor_loc[0],
                                                                     neighbors_neighbor_loc[1] - neighbor_loc[1])
                                     if neighbor_direction == neighbors_neighbor_direction:
-                                        possible_moves.append((current_cell_loc, neighbors_neighbor_loc))
-        print(possible_moves)
+                                        possible_moves.append((current_cell_loc, neighbors_neighbor_loc, neighbor_direction))
+        #print(possible_moves)
         return possible_moves
 
+    def make_move(self, move):
+        # on the form (a, b) where a is the loc to jump from and b is the loc to jump to
+        for valid_move in self.get_all_possible_moves():
+            if move == valid_move[:-1]:
+                row_from = move[0][0]
+                col_from = move[0][1]
+                row_to = move[1][0]
+                col_to = move[1][1]
+                row_between = row_from + valid_move[-1][0]
+                col_between = col_from + valid_move[-1][1]
 
+                self.cells[row_from][col_from].remove_peg()
+                self.cells[row_to][col_to].put_peg()
+                self.cells[row_between][col_between].remove_peg()
+                return
+        raise Exception(str(move) + ' is not a valid move')
 
 
     def visualize(self):
@@ -126,7 +141,8 @@ if __name__ == '__main__':
     board = Board()
     board.init_board()
     board.visualize()
-    possible_moves = board.get_all_possible_moves()
+    board.make_move(((2, 0), (0, 0)))
+    board.visualize()
 
 
 

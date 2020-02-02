@@ -1,4 +1,4 @@
-
+import random
 
 class GameController:
     def __init__(self, board, visualize=False):
@@ -26,13 +26,20 @@ class GameController:
     def get_valid_moves(self):
         return self.board.get_all_possible_moves()
 
+    def get_random_move(self):
+        valid_moves = self.get_valid_moves()
+        if len(valid_moves) == 0:
+            return -1
+        random.shuffle(valid_moves)
+        random_move = valid_moves[0][:-1]
+        return random_move
+
     def make_move(self, move):
-        # If valid move ??
         self.board.make_move(move)
         self.actions.append(move)
         self.states.append(self.get_game_state())
         self.show_board()
-        return 10 if self.game_is_won() else 0  # try different rewards?
+        return 100 if self.game_is_won() else 0  # try different rewards?
 
     def get_states_in_episode(self):
         return self.states

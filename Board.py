@@ -99,6 +99,16 @@ class Board:
                 return
         raise Exception(str(move) + ' is not a valid move')
 
+    def get_hashable_state(self):
+        string = ""
+        for r in range(0, len(self.cells)):
+            for c in range(0, len(self.cells[r])):
+                current_cell = self.cells[r][c]
+                if current_cell.has_peg():
+                    string += "1"
+                else:
+                    string += "0"
+        return string
 
     def visualize(self):
         G = nx.Graph()

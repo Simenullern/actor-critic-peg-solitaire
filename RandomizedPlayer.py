@@ -27,7 +27,7 @@ if __name__ == '__main__':
             valid_moves = controller.get_valid_moves()
             random.shuffle(valid_moves)
             random_move = valid_moves[0][:-1]
-            controller.make_move(random_move)
+            reward = controller.make_move(random_move)
             #time.sleep(1)
             controller.show_board()
             if controller.game_is_lost():

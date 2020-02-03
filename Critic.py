@@ -1,15 +1,25 @@
+from Funcapp import Funcapp
+import torch
 import numpy as np
 
 class Critic:
-    def __init__(self, use_nn=False, learning_rate=0.1,
+    def __init__(self, layers, use_nn=False, learning_rate=0.1,
                  elig_decay_rate=0.9, discount_factor=0.9):
 
-        self.use_nn = use_nn
         self.learning_rate = learning_rate
         self.elig_decay_rate = elig_decay_rate
         self.discount_factor = discount_factor
         self.value_func = dict()
         self.eligs = dict()
+        self.use_nn = use_nn
+        self.funcapp = None
+        if use_nn:
+            self.funcapp = Funcapp(layers=layers).double()
+
+        #abc = torch.tensor(np.array([1.0 for i in range(0, 15)]), dtype=torch.float)
+        #x = self.funcapp.forward(abc)
+        #breakpoint()
+
 
     def init_state_value_if_needed(self, state):
         if state not in self.value_func.keys():

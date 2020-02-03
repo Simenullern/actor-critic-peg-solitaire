@@ -24,6 +24,9 @@ LEARNING_RATE_CRITIC = 0.3
 ELIG_DECAY_RATE_CRITIC = 0.75
 DISCOUNT_FACTOR_CRITIC = 0.9
 
+USE_NN = True
+layers = (15, 20, 30, 5, 1)
+
 if __name__ == '__main__':
 
     board = Board(shape=BOARD_SHAPE, size=BOARD_SIZE, open_start_cells=OPEN_START_CELLS)
@@ -31,7 +34,7 @@ if __name__ == '__main__':
     actor = Actor(learning_rate=LEARNING_RATE_ACTOR, elig_decay_rate=ELIG_DECAY_RATE_ACTOR,
                   discount_factor=DISCOUNT_FACTOR_ACTOR, epsilon=EPISILON,
                   random_move_generator=game_controller.get_random_move)
-    critic = Critic(use_nn=False, learning_rate=LEARNING_RATE_CRITIC,
+    critic = Critic(layers=layers, use_nn=USE_NN, learning_rate=LEARNING_RATE_CRITIC,
                     elig_decay_rate=ELIG_DECAY_RATE_CRITIC, discount_factor=DISCOUNT_FACTOR_CRITIC)
     pegs_remaining = []
 

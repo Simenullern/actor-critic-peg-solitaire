@@ -2,7 +2,7 @@ import random
 
 class Actor:
     def __init__(self, random_move_generator, learning_rate = 0.1, elig_decay_rate=0.9, discount_factor=0.9,
-                 epsilon = 0.1,):
+                 epsilon = 0.1):
         self.learning_rate = learning_rate
         self.elig_decay_rate = elig_decay_rate
         self.discount_factor = discount_factor
@@ -15,16 +15,15 @@ class Actor:
         if (state, action) not in self.sap_func.keys():
             self.sap_func[(state, action)] = 0
 
-    def update_policy(self, state, action, td_error):
+    def update_policy(self, state, action, actor_val, td_error):
         #if (state, action) not in self.sap_func.keys():
             #self.sap_func[(state, action)] = 0
 
-        self.sap_func[(state, action)] += \
-            self.learning_rate * td_error * self.get_elig(state, action)
+        self.sap_func[(state, action)] = self.sap_func[(state, action)] + self.learning_rate * td_error * self.get_elig(state, action)
 
         return self.sap_func[(state, action)]
 
-    def get_policy(self, state, action):
+    def get_sap_value(self, state, action):
         return self.sap_func[(state, action)]
 
     def set_policy(self, state, action, value):
@@ -43,14 +42,14 @@ class Actor:
                 candidates.append(sap)
                 if self.sap_func[sap] > max_score:
                     best_action = sap[1]
-        if len(candidates) > 1:
-            print(candidates, self.sap_func[candidates[0]], self.sap_func[candidates[0]])
+        #if len(candidates) > 1:
+            #print(candidates, self.sap_func[candidates[0]], self.sap_func[candidates[0]])
             #breakpoint()
         if best_action is None:
-            print("\tchose random val because no candidates exist!")
+            #print("\tchose random val because no candidates exist!")
             return self.random_move_generator()
         else:
-            print("\tchose best action")
+            #print("\tchose best action")
             return best_action
 
     def set_elig(self, state, action, value):
@@ -60,10 +59,10 @@ class Actor:
         return self.eligs[(state, action)] if (state,action) in self.eligs.keys() \
             else 0
 
-    def update_elig(self, state, action):
+    def update_elig(self, state, action, actor_elig):
         if (state, action) not in self.eligs.keys():
             self.set_elig(state, action, 0)
-        self.eligs[state] = self.discount_factor * self.elig_decay_rate * self.eligs[(state, action)]
+        self.eligs[state] = self.discount_factor * self.elig_decay_rate * actor_elig
         return self.eligs[state]
 
     def reset_eligs(self):

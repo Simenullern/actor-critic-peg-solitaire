@@ -11,17 +11,19 @@ class Critic:
         self.value_func = dict()
         self.eligs = dict()
 
-    def get_value(self, state):
+    def init_value_if_needed(self, state):
         if state not in self.value_func.keys():
-            self.value_func[state] = np.random.uniform(low=0, high=0)
+            self.value_func[state] = 0
+
+    def get_value(self, state):
+        self.init_value_if_needed(state)
         return self.value_func[state]
 
-    def update_value_func(self, state, td_error):
-        if state not in self.eligs.keys():
-            self.set_elig(state, 0)
+    def update_value_func(self, state, critic_val, td_error):
+        #if state not in self.eligs.keys():
+            #self.set_elig(state, 0)
 
-        self.value_func[state] += \
-            self.learning_rate * td_error * self.eligs[state]
+        self.value_func[state] = self.value_func[state] + self.learning_rate * td_error * self.get_elig(state)
         return self.value_func[state]
 
     def get_elig(self, state):
@@ -31,10 +33,11 @@ class Critic:
     def set_elig(self, state, value):
         self.eligs[state] = value
 
-    def update_elig(self, state):
-        if state not in self.eligs.keys():
-            self.set_elig(state, 0)
-        self.eligs[state] = self.discount_factor * self.elig_decay_rate * self.eligs[state]
+    def update_elig(self, state, critic_elig):
+        #if state not in self.eligs.keys():
+            #self.set_elig(state, 0)
+
+        self.eligs[state] = self.discount_factor * self.elig_decay_rate * critic_elig
         return self.eligs[state]
 
     def reset_eligs(self):

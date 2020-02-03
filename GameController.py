@@ -10,7 +10,7 @@ class GameController:
     def initialize_board(self):
         self.board.init_board()
         self.states.append(self.get_game_state())
-        self.actions.append((('init'), ('init')))
+        #self.actions.append((('init'), ('init')))
         self.show_board()
 
     def new_game(self):
@@ -44,7 +44,7 @@ class GameController:
                 self.actions.append(move)
                 self.states.append(self.get_game_state())
                 self.show_board()
-                return 500 if self.game_is_won() else 0 # try different rewards?
+                return 1 if self.game_is_won() else 0 # try different rewards?
 
     def get_states_in_episode(self):
         return self.states

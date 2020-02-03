@@ -13,12 +13,15 @@ class Critic:
 
     def get_value(self, state):
         if state not in self.value_func.keys():
-            self.value_func[state] = np.random.uniform(low=0, high=0.1)
+            self.value_func[state] = np.random.uniform(low=0, high=0)
         return self.value_func[state]
 
     def update_value_func(self, state, td_error):
+        if state not in self.eligs.keys():
+            self.set_elig(state, 0)
+
         self.value_func[state] += \
-            self.learning_rate * td_error * self.get_elig(state)
+            self.learning_rate * td_error * self.eligs[state]
         return self.value_func[state]
 
     def get_elig(self, state):
@@ -33,6 +36,10 @@ class Critic:
             self.set_elig(state, 0)
         self.eligs[state] = self.discount_factor * self.elig_decay_rate * self.eligs[state]
         return self.eligs[state]
+
+    def reset_eligs(self):
+        for key in self.eligs.keys():
+            self.eligs[key] = 0
 
     def compute_TD_error(self, reward, state_value, succ_state_value):
         return reward + self.discount_factor * succ_state_value - state_value

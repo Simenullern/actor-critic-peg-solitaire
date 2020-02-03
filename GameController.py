@@ -14,6 +14,8 @@ class GameController:
         self.show_board()
 
     def new_game(self):
+        self.states = []
+        self.actions = []
         self.initialize_board()
 
     def get_game_state(self):
@@ -35,11 +37,14 @@ class GameController:
         return random_move
 
     def make_move(self, move):
-        self.board.make_move(move)
-        self.actions.append(move)
-        self.states.append(self.get_game_state())
-        self.show_board()
-        return 100 if self.game_is_won() else 0  # try different rewards?
+        for x in self.get_valid_moves():
+            possible_move = x[:-1]
+            if move == possible_move:
+                self.board.make_move(move)
+                self.actions.append(move)
+                self.states.append(self.get_game_state())
+                self.show_board()
+                return 500 if self.game_is_won() else 0 # try different rewards?
 
     def get_states_in_episode(self):
         return self.states

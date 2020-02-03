@@ -39,10 +39,3 @@ class Critic:
 
     def compute_TD_error(self, reward, state_value, succ_state_value):
         return reward + self.discount_factor * succ_state_value - state_value
-
-
-
-
-
-
-

@@ -20,6 +20,9 @@ class Board:
 
         self.open_start_cells = open_start_cells
 
+    def get_size(self):
+        return self.size
+
     def init_board(self):
         for i in range(0, len(self.cells)):
             row = self.cells[i]
@@ -56,9 +59,9 @@ class Board:
 
     def get_all_possible_moves(self):
         possible_moves = []
-        # Return list of tuples on the form (a, b, c) and c is the jumping direction
+        # Return list of tuples on the form (a, b, c)
+        # where a is the loc to jump from and b is the loc to jump to and c is the jumping direction
         # Algorithm:
-        # where a is the loc to jump from and b is the loc to jump to
         # for each cell, if it has a peg then get all neighbors.
         # If the neighbor has a peg then check for neighbor if they have an open neighbor that is in the same direction
 
@@ -73,7 +76,7 @@ class Board:
                             neighbor_direction = (neighbor_loc[0] - current_cell_loc[0],
                                                   neighbor_loc[1] - current_cell_loc[1])
                             for neighbors_neighbor in neighbor.get_neighbors():
-                                if not neighbors_neighbor.has_peg(): # and not neighbors_neighbor == current_cell: #Delete this later?
+                                if not neighbors_neighbor.has_peg():
                                     neighbors_neighbor_loc = neighbors_neighbor.get_loc()
                                     neighbors_neighbor_direction = (neighbors_neighbor_loc[0] - neighbor_loc[0],
                                                                     neighbors_neighbor_loc[1] - neighbor_loc[1])

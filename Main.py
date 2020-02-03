@@ -5,23 +5,34 @@ from Critic import Critic
 import matplotlib.pyplot as plt
 import time
 
-NUM_EPISODES = 500
+NUM_EPISODES = 1000
 VERBOSE_GAME_OUTCOME = True
 VISUALIZE_FINAL_TARGET_POLICY = False
 SLEEP_BETWEEN_MOVES = 0
 
-BOARD_SHAPE = 'triangle'
+BOARD_SHAPE = 'diamond'
 BOARD_SIZE = 5
 OPEN_START_CELLS = [(2, 1)]
 VISUALIZE_ALL_GAMES = False
+
+LEARNING_RATE_ACTOR = 0.3
+ELIG_DECAY_RATE_ACTOR = 0.75
+DISCOUNT_FACTOR_ACTOR = 0.9
+EPISILON = 0.5
+
+LEARNING_RATE_CRITIC = 0.3
+ELIG_DECAY_RATE_CRITIC = 0.75
+DISCOUNT_FACTOR_CRITIC = 0.9
 
 if __name__ == '__main__':
 
     board = Board(shape=BOARD_SHAPE, size=BOARD_SIZE, open_start_cells=OPEN_START_CELLS)
     game_controller = GameController(board, visualize=VISUALIZE_ALL_GAMES)
-    actor = Actor(learning_rate=0.3, elig_decay_rate=0.75, discount_factor=0.9, epsilon=0.5,
+    actor = Actor(learning_rate=LEARNING_RATE_ACTOR, elig_decay_rate=ELIG_DECAY_RATE_ACTOR,
+                  discount_factor=DISCOUNT_FACTOR_ACTOR, epsilon=EPISILON,
                   random_move_generator=game_controller.get_random_move)
-    critic = Critic(use_nn=False, learning_rate=0.3, elig_decay_rate=0.75, discount_factor=0.9)
+    critic = Critic(use_nn=False, learning_rate=LEARNING_RATE_CRITIC,
+                    elig_decay_rate=ELIG_DECAY_RATE_CRITIC, discount_factor=DISCOUNT_FACTOR_CRITIC)
     pegs_remaining = []
 
     for episode in range(NUM_EPISODES):
@@ -64,7 +75,6 @@ if __name__ == '__main__':
                 state_in_episode = game_controller.get_states_in_episode()[move]
                 action_in_episode = game_controller.get_actions_in_episode()[move]
 
-                ## UPDATES
                 critic_elig = critic.update_elig(state_in_episode, critic_elig)
                 actor_elig = actor.update_elig(state_in_episode, action_in_episode, actor_elig)
                 critic_val = critic.update_value_func(state_in_episode, TD_error, critic_elig)
@@ -74,14 +84,12 @@ if __name__ == '__main__':
             action = action_from_succ_state
 
         if game_controller.game_is_won():
-            if VERBOSE_GAME_OUTCOME: print('Congratulations, you won game no ', episode)
+            if VERBOSE_GAME_OUTCOME: print('Congratulations, you won game no', episode)
             pegs_remaining.append(1)
             actor.set_episilon(actor.get_episilon()*0.9)
         else:
-            if VERBOSE_GAME_OUTCOME: print("you lost with remaining pegs", game_controller.get_remaining_pegs())
+            if VERBOSE_GAME_OUTCOME: print("you lost game no", episode, "with remaining pegs", game_controller.get_remaining_pegs())
             pegs_remaining.append(game_controller.get_remaining_pegs())
-
-
 
     ## PLOT RESULTS
     plt.plot(pegs_remaining)

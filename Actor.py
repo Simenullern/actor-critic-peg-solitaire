@@ -40,8 +40,9 @@ class Actor:
         max_score = 0
         candidates = []
         for sap in self.sap_func.keys():
-            if sap[0] == state: # potential candidate
-                candidates.append(sap)
+            #print(len(self.sap_func.keys()))
+            if sap[0] == state: # potential candidate ### this take
+                candidates.append(sap) # Normalize?
                 if self.sap_func[sap] > max_score:
                     best_action = sap[1]
         #if len(candidates) > 1:

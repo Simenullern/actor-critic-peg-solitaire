@@ -13,6 +13,9 @@ class GameController:
         #self.actions.append((('init'), ('init')))
         self.show_board()
 
+    def set_visualization(self, bool):
+        self.visualize = bool
+
     def new_game(self):
         self.states = []
         self.actions = []

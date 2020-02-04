@@ -15,8 +15,8 @@ class Critic:
         self.funcapp = None
         self.nn_learning_rate = None
         self.elig_of_weights = []
-        criterion = None
-        optimizer = None
+        self.criterion = None
+        self.optimizer = None
         if use_nn:
             modules = []
             for i in range(0, len(layers)-1):
@@ -29,7 +29,6 @@ class Critic:
             self.optimizer = torch.optim.Adam(self.funcapp.parameters(), lr=self.nn_learning_rate)
 
         ## Eligbs first have to be initialized to the size of all the layers of weights. E.g just use random weight init.
-
         ##For each state, action thing:
             # Update all eligs with the standard elig
             # Get y_pred and y_target
@@ -46,6 +45,9 @@ class Critic:
 
     def get_value(self, state):
         self.init_state_value_if_needed(state)
+        if self.use_nn:
+            X = self.vectorize_state(state)
+            return self.funcapp(X)
         return self.value_func[state]
 
     def update_value_func(self, state, td_error, critic_elig):
@@ -54,7 +56,7 @@ class Critic:
             #breakpoint()
             y_pred = self.funcapp(X)
             #breakpoint()
-            self.value_func[state] = y_pred
+            self.value_func[state] = y_pred # Should not even need table for nn scenario??
             #breakpoint()
 
             y_target = td_error + y_pred ## Is this correct?
@@ -73,20 +75,20 @@ class Critic:
                 new_eligs.append(np.add(self.elig_of_weights[i], gradients))
             self.elig_of_weights = np.array(new_eligs)
 
+            return y_pred
 
         else:
             self.value_func[state] = self.value_func[state] + self.learning_rate * td_error * critic_elig
-        return self.value_func[state]
+            return self.value_func[state]
 
     def vectorize_state(self, state):
         out = []
         for char in state:
             if char == '1':
-                out.append(1.0)
+                return torch.tensor([1.0])
             else:
                 out.append(0.0)
-        return torch.tensor(out)
-
+        return torch.tensor([0.0])
 
     def get_elig(self, state):
         return self.eligs[state]

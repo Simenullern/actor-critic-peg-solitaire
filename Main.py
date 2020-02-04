@@ -5,7 +5,7 @@ from Critic import Critic
 import matplotlib.pyplot as plt
 import time
 
-NUM_EPISODES = 1000
+NUM_EPISODES = 300
 VERBOSE_GAME_OUTCOME = True
 VISUALIZE_FINAL_TARGET_POLICY = False
 SLEEP_BETWEEN_MOVES = 0
@@ -25,7 +25,7 @@ ELIG_DECAY_RATE_CRITIC = 0.75
 DISCOUNT_FACTOR_CRITIC = 0.9
 
 USE_NN = True
-layers = (16, 20, 30, 5, 1)
+layers = (1, 5, 1)
 
 if __name__ == '__main__':
 
@@ -89,7 +89,7 @@ if __name__ == '__main__':
         if game_controller.game_is_won():
             if VERBOSE_GAME_OUTCOME: print('Congratulations, you won game no', episode)
             pegs_remaining.append(1)
-            actor.set_episilon(actor.get_episilon()*0.9)
+            #actor.set_episilon(actor.get_episilon()*0.9)
         else:
             if VERBOSE_GAME_OUTCOME: print("you lost game no", episode, "with remaining pegs", game_controller.get_remaining_pegs())
             pegs_remaining.append(game_controller.get_remaining_pegs())

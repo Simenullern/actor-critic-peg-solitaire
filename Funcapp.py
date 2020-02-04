@@ -17,4 +17,6 @@ class Funcapp(nn.Module):
         x = state_encoding
         for layer in self.layers:
             x = layer(x)
+
+        breakpoint()
         return x

@@ -11,7 +11,7 @@ VISUALIZE_FINAL_TARGET_POLICY = False
 SLEEP_BETWEEN_MOVES = 0
 
 BOARD_SHAPE = 'diamond'
-BOARD_SIZE = 5
+BOARD_SIZE = 4
 OPEN_START_CELLS = [(2, 1)]
 VISUALIZE_ALL_GAMES = False
 
@@ -25,7 +25,7 @@ ELIG_DECAY_RATE_CRITIC = 0.75
 DISCOUNT_FACTOR_CRITIC = 0.9
 
 USE_NN = True
-layers = (15, 20, 30, 5, 1)
+layers = (16, 20, 30, 5, 1)
 
 if __name__ == '__main__':
 

@@ -48,7 +48,7 @@ class GameController:
                 self.states.append(self.get_game_state())
                 self.show_board()
                 if self.game_is_won():
-                    return 1
+                    return 100
                 #if not self.game_is_on():
                     #return -0.001
                 return 0 # try different rewards? E.g. if all edge pieces are gone

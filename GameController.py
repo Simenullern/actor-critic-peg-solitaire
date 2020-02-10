@@ -10,7 +10,6 @@ class GameController:
     def initialize_board(self):
         self.board.init_board()
         self.states.append(self.get_game_state())
-        #self.actions.append((('init'), ('init')))
         self.show_board()
 
     def set_visualization(self, bool):
@@ -48,10 +47,10 @@ class GameController:
                 self.states.append(self.get_game_state())
                 self.show_board()
                 if self.game_is_won():
-                    return 1
-                #if not self.game_is_on():
-                    #return -0.001
-                return 0 # try different rewards? E.g. if all edge pieces are gone
+                    return 10
+                if not self.game_is_on():
+                    return -0.01
+                return 0
 
     def get_states_in_episode(self):
         return self.states

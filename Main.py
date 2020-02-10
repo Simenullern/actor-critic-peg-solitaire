@@ -5,13 +5,13 @@ from Critic import Critic
 import matplotlib.pyplot as plt
 import time
 
-NUM_EPISODES = 300
+NUM_EPISODES = 500
 VERBOSE_GAME_OUTCOME = True
 VISUALIZE_FINAL_TARGET_POLICY = False
 SLEEP_BETWEEN_MOVES = 0
 
-BOARD_SHAPE = 'diamond'
-BOARD_SIZE = 4
+BOARD_SHAPE = 'triangle'
+BOARD_SIZE = 5
 OPEN_START_CELLS = [(2, 1)]
 VISUALIZE_ALL_GAMES = False
 
@@ -19,13 +19,14 @@ LEARNING_RATE_ACTOR = 0.3
 ELIG_DECAY_RATE_ACTOR = 0.75
 DISCOUNT_FACTOR_ACTOR = 0.9
 EPISILON = 0.5
+EPISILON_DECAY_RATE = 0.75
 
-LEARNING_RATE_CRITIC = 0.3
+LEARNING_RATE_CRITIC = 0.1
 ELIG_DECAY_RATE_CRITIC = 0.75
 DISCOUNT_FACTOR_CRITIC = 0.9
 
-USE_NN = True
-layers = (1, 5, 1)
+USE_NN = False
+layers = (Board.get_number_of_cells(BOARD_SIZE, BOARD_SHAPE), 4, 1)
 
 if __name__ == '__main__':
 
@@ -40,9 +41,11 @@ if __name__ == '__main__':
 
     for episode in range(NUM_EPISODES):
         if VISUALIZE_FINAL_TARGET_POLICY and episode == NUM_EPISODES - 1:
-            actor.set_episilon(0)
             game_controller.set_visualization(True)
             SLEEP_BETWEEN_MOVES = 0.5
+            actor.set_episilon(0)
+            if USE_NN:
+                critic.funcapp.eval()
 
         game_controller.new_game()
         state = game_controller.get_game_state()
@@ -74,12 +77,15 @@ if __name__ == '__main__':
 
             no_of_steps_to_rewind = len(game_controller.get_actions_in_episode())
 
+            # I move backwards through the game states and actions done and then update the
+            # eligbility as a constant times the succestor state eligibility
             for move in range(no_of_steps_to_rewind-1, -1, -1):
+
                 state_in_episode = game_controller.get_states_in_episode()[move]
                 action_in_episode = game_controller.get_actions_in_episode()[move]
 
                 critic_elig = critic.update_elig(state_in_episode, critic_elig)
-                actor_elig = actor.update_elig(state_in_episode, action_in_episode, actor_elig)
+                actor_elig = actor.update_elig(state_in_episode, actor_elig)
                 critic_val = critic.update_value_func(state_in_episode, TD_error, critic_elig)
                 actor_val = actor.update_policy(state_in_episode, action_in_episode, TD_error, actor_elig)
 
@@ -88,8 +94,8 @@ if __name__ == '__main__':
 
         if game_controller.game_is_won():
             if VERBOSE_GAME_OUTCOME: print('Congratulations, you won game no', episode)
-            pegs_remaining.append(1)
-            #actor.set_episilon(actor.get_episilon()*0.9)
+            pegs_remaining.append((game_controller.get_remaining_pegs()))
+            actor.set_episilon(actor.get_episilon()*EPISILON_DECAY_RATE)
         else:
             if VERBOSE_GAME_OUTCOME: print("you lost game no", episode, "with remaining pegs", game_controller.get_remaining_pegs())
             pegs_remaining.append(game_controller.get_remaining_pegs())

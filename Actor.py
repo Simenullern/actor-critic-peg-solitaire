@@ -40,15 +40,10 @@ class Actor:
         max_score = 0
         candidates = []
         for sap in self.sap_func.keys():
-            #print(len(self.sap_func.keys()))
-            if sap[0] == state: # potential candidate ### this take
-                candidates.append(sap) # Normalize?
+            if sap[0] == state:  # state matches
+                candidates.append(sap)
                 if self.sap_func[sap] > max_score:
                     best_action = sap[1]
-        #if len(candidates) > 1:
-            #if self.sap_func[candidates[0]] > 0:
-                #rint(candidates, self.sap_func[candidates[0]], self.sap_func[candidates[0]])
-                #breakpoint()
         if best_action is None:
             return self.random_move_generator()
         else:
@@ -60,7 +55,7 @@ class Actor:
     def get_elig(self, state, action):
         return self.eligs[(state, action)]
 
-    def update_elig(self, state, action, actor_elig):
+    def update_elig(self, state, actor_elig):
         self.eligs[state] = self.discount_factor * self.elig_decay_rate * actor_elig
         return self.eligs[state]
 

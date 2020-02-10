@@ -39,7 +39,7 @@ class Board:
                 for pn in self.potential_neighbors:
                     try:
                         if r+pn[0] < 0 or c + pn[1] < 0:
-                            continue  # Don't consider negative indexes
+                            continue  # Don't allow for negative indexes
                         neighbor = self.cells[r+pn[0]][c+pn[1]]
                         current_cell.add_neighbor(neighbor)
                     except IndexError:
@@ -82,7 +82,6 @@ class Board:
                                                                     neighbors_neighbor_loc[1] - neighbor_loc[1])
                                     if neighbor_direction == neighbors_neighbor_direction:
                                         possible_moves.append((current_cell_loc, neighbors_neighbor_loc, neighbor_direction))
-        #print(possible_moves)
         return possible_moves
 
     def make_move(self, move):
@@ -142,7 +141,7 @@ class Board:
             'font_color': 'black',
             'node_color': node_colors,
             'pos': nx.kamada_kawai_layout(G) if self.shape == 'triangle'
-                else nx.spring_layout(G, seed=2),  # Making sure it looks decent
+                else nx.spring_layout(G, seed=2),
         }
 
         nx.draw(G, with_labels=True, **options)
@@ -150,12 +149,8 @@ class Board:
         plt.show()
 
 
-if __name__ == '__main__':
-    board = Board()
-    board.init_board()
-    board.visualize()
-    board.make_move(((2, 0), (0, 0)))
-    board.visualize()
-
-
+    @staticmethod
+    def get_number_of_cells(board_size, board_type):
+        assert (board_type == "diamond" or board_type == "triangle")
+        return board_size * board_size if board_type == 'diamond' else int((board_size*(board_size+1))/2)
 

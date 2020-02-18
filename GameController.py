@@ -47,9 +47,9 @@ class GameController:
                 self.states.append(self.get_game_state())
                 self.show_board()
                 if self.game_is_won():
-                    return 10
+                    return 100
                 if not self.game_is_on():
-                    return -0.01
+                    return 0 #-0.01
                 return 0
 
     def get_states_in_episode(self):

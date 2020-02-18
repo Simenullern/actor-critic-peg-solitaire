@@ -12,7 +12,6 @@ class Critic:
         self.value_func = None if use_nn else dict()
         self.eligs = [] if use_nn else dict()
 
-
         # Everything below is to deal with the neural network as function approximator
         self.funcapp = None
         self.criterion = None
@@ -20,7 +19,7 @@ class Critic:
         if use_nn:
             modules = []
             for i in range(0, len(layers)-1):
-                modules.append(torch.nn.Linear((layers[i]), layers[i+1]))
+                modules.append(torch.nn.Linear((layers[i]), layers[i+1], bias=True))
                 self.eligs.append(np.zeros(modules[i].weight.shape))
             modules.append(torch.nn.Sigmoid())
             self.funcapp = torch.nn.Sequential(*modules).train()
@@ -41,20 +40,31 @@ class Critic:
             return self.value_func[state]
 
     def update_value_func(self, state, td_error, critic_elig):
+        #print(critic_elig)
+        #breakpoint()
         if self.use_nn:
+            # backprop TD_error to get gradients, but wait with updating the weights
             X = Critic.vectorize_state(state)
             y_pred = self.funcapp(X)
             y_target = td_error + y_pred
+            #elig_contribution = torch.tensor(critic_elig.flat[0], dtype=torch.float32)
             loss = self.criterion(y_pred, y_target)
             loss.backward(retain_graph = True)
-            self.optimizer.step()
 
-            ## Update eligs with gradient contribution
+            # Update eligs with standard partial derivative
             new_eligs = []
-            for i in range(0, len(self.funcapp)-1):
+            for i in range(0, len(self.funcapp) - 1):
                 gradients = self.funcapp[i].weight.grad.numpy()
                 new_eligs.append(np.add(self.eligs[i], gradients))
             self.eligs = np.array(new_eligs)
+
+            # Then update gradients with the elig contribution
+            for i in range(0, len(self.funcapp) - 1):
+                eligs = self.eligs[i]
+                self.funcapp[i].weight.grad *= torch.tensor(eligs, dtype=torch.float)
+
+            # Now the weights can be updated
+            self.optimizer.step()
 
             return y_pred
 
@@ -64,7 +74,6 @@ class Critic:
 
     def get_elig(self, state):
         return self.eligs if self.use_nn else self.eligs[state]
-
 
     def set_elig(self, state, value):
         if self.use_nn:

@@ -1,6 +1,8 @@
 from Cell import Cell
 import networkx as nx
 import matplotlib.pyplot as plt
+import warnings
+warnings.filterwarnings("ignore")
 import numpy as np
 from random import randrange
 
@@ -113,7 +115,7 @@ class Board:
         return string
 
     def visualize(self):
-        G = nx.Graph()
+        G = nx.Graph(tight_layout = False)
 
         # Add Nodes
         node_colors = []
@@ -142,10 +144,10 @@ class Board:
             'node_color': node_colors,
             'pos': nx.kamada_kawai_layout(G) if self.shape == 'triangle'
                 else nx.spring_layout(G, seed=2),
+
         }
 
         nx.draw(G, with_labels=True, **options)
-        plt.gcf().set_tight_layout(True)
         plt.show()
 
 

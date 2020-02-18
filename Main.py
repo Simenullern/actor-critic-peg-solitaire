@@ -5,13 +5,13 @@ from Critic import Critic
 import matplotlib.pyplot as plt
 import time
 
-NUM_EPISODES = 500
+NUM_EPISODES = 300
 VERBOSE_GAME_OUTCOME = True
-VISUALIZE_FINAL_TARGET_POLICY = False
+VISUALIZE_FINAL_TARGET_POLICY = True
 SLEEP_BETWEEN_MOVES = 0
 
-BOARD_SHAPE = 'triangle'
-BOARD_SIZE = 5
+BOARD_SHAPE = 'diamond'
+BOARD_SIZE = 4
 OPEN_START_CELLS = [(2, 1)]
 VISUALIZE_ALL_GAMES = False
 
@@ -21,12 +21,12 @@ DISCOUNT_FACTOR_ACTOR = 0.9
 EPISILON = 0.5
 EPISILON_DECAY_RATE = 0.75
 
-LEARNING_RATE_CRITIC = 0.1
+LEARNING_RATE_CRITIC = 0.01
 ELIG_DECAY_RATE_CRITIC = 0.75
 DISCOUNT_FACTOR_CRITIC = 0.9
 
-USE_NN = False
-layers = (Board.get_number_of_cells(BOARD_SIZE, BOARD_SHAPE), 4, 1)
+USE_NN = True
+LAYERS = (Board.get_number_of_cells(BOARD_SIZE, BOARD_SHAPE), 4, 1)
 
 if __name__ == '__main__':
 
@@ -35,7 +35,7 @@ if __name__ == '__main__':
     actor = Actor(learning_rate=LEARNING_RATE_ACTOR, elig_decay_rate=ELIG_DECAY_RATE_ACTOR,
                   discount_factor=DISCOUNT_FACTOR_ACTOR, epsilon=EPISILON,
                   random_move_generator=game_controller.get_random_move)
-    critic = Critic(layers=layers, use_nn=USE_NN, learning_rate=LEARNING_RATE_CRITIC,
+    critic = Critic(layers=LAYERS, use_nn=USE_NN, learning_rate=LEARNING_RATE_CRITIC,
                     elig_decay_rate=ELIG_DECAY_RATE_CRITIC, discount_factor=DISCOUNT_FACTOR_CRITIC)
     pegs_remaining = []
 
@@ -53,7 +53,7 @@ if __name__ == '__main__':
 
         while game_controller.game_is_on():
             time.sleep(SLEEP_BETWEEN_MOVES)
-            critic.reset_eligs()
+            critic.reset_eligs() # Only if nn?
             actor.reset_eligs()
             critic.init_state_value_if_needed(state)
             actor.init_sap_value_if_needed(state, action)
@@ -63,8 +63,8 @@ if __name__ == '__main__':
             succ_state = game_controller.get_game_state()
             action_from_succ_state = actor.get_action_from_state(succ_state)
 
+            if not USE_NN: critic.set_elig(state, value=1)
             actor.set_elig(state, action, value=1)
-            critic.set_elig(state, value=1)
 
             state_value = critic.get_value(state)
             succ_state_value = critic.get_value(succ_state)
@@ -77,8 +77,8 @@ if __name__ == '__main__':
 
             no_of_steps_to_rewind = len(game_controller.get_actions_in_episode())
 
-            # I move backwards through the game states and actions done and then update the
-            # eligbility as a constant times the succestor state eligibility
+            # I move backwards through the game states and then update the
+            # eligibility as a constant times the successor state eligibility
             for move in range(no_of_steps_to_rewind-1, -1, -1):
 
                 state_in_episode = game_controller.get_states_in_episode()[move]

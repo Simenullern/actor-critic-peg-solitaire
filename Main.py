@@ -5,21 +5,21 @@ from Critic import Critic
 import matplotlib.pyplot as plt
 import time
 
-NUM_EPISODES = 300
+NUM_EPISODES = 100
 VERBOSE_GAME_OUTCOME = True
+VISUALIZE_ALL_GAMES = False
 VISUALIZE_FINAL_TARGET_POLICY = True
 SLEEP_BETWEEN_MOVES = 0
 
 BOARD_SHAPE = 'diamond'
 BOARD_SIZE = 4
 OPEN_START_CELLS = [(2, 1)]
-VISUALIZE_ALL_GAMES = False
 
 LEARNING_RATE_ACTOR = 0.3
 ELIG_DECAY_RATE_ACTOR = 0.75
 DISCOUNT_FACTOR_ACTOR = 0.9
 EPISILON = 0.5
-EPISILON_DECAY_RATE = 0.75
+EPISILON_DECAY_RATE = 0.5
 
 LEARNING_RATE_CRITIC = 0.01
 ELIG_DECAY_RATE_CRITIC = 0.75
@@ -53,7 +53,7 @@ if __name__ == '__main__':
 
         while game_controller.game_is_on():
             time.sleep(SLEEP_BETWEEN_MOVES)
-            critic.reset_eligs() # Only if nn?
+            critic.reset_eligs()
             actor.reset_eligs()
             critic.init_state_value_if_needed(state)
             actor.init_sap_value_if_needed(state, action)
@@ -63,7 +63,8 @@ if __name__ == '__main__':
             succ_state = game_controller.get_game_state()
             action_from_succ_state = actor.get_action_from_state(succ_state)
 
-            if not USE_NN: critic.set_elig(state, value=1)
+            if not USE_NN:
+                critic.set_elig(state, value=1)
             actor.set_elig(state, action, value=1)
 
             state_value = critic.get_value(state)

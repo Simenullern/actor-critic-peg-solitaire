@@ -1,8 +1,8 @@
 import random
 
 class Actor:
-    def __init__(self, random_move_generator, learning_rate = 0.1, elig_decay_rate=0.9, discount_factor=0.9,
-                 epsilon = 0.1):
+    def __init__(self, random_move_generator, learning_rate=0.1, elig_decay_rate=0.9, discount_factor=0.9,
+                 epsilon=0.1):
         self.learning_rate = learning_rate
         self.elig_decay_rate = elig_decay_rate
         self.discount_factor = discount_factor
@@ -38,10 +38,8 @@ class Actor:
 
         best_action = None
         max_score = 0
-        candidates = []
         for sap in self.sap_func.keys():
             if sap[0] == state:  # state matches
-                candidates.append(sap)
                 if self.sap_func[sap] > max_score:
                     best_action = sap[1]
         if best_action is None:

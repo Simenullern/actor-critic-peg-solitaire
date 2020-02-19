@@ -3,8 +3,6 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import warnings
 warnings.filterwarnings("ignore")
-import numpy as np
-from random import randrange
 
 
 class Board:

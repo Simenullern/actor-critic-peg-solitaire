@@ -40,30 +40,26 @@ class Critic:
             return self.value_func[state]
 
     def update_value_func(self, state, td_error, critic_elig):
-        #print(critic_elig)
-        #breakpoint()
         if self.use_nn:
-            # backprop TD_error to get gradients, but wait with updating the weights
+            # STEP 1: backprop TD_error to get gradients
             X = Critic.vectorize_state(state)
             y_pred = self.funcapp(X)
             y_target = td_error + y_pred
-            #elig_contribution = torch.tensor(critic_elig.flat[0], dtype=torch.float32)
             loss = self.criterion(y_pred, y_target)
             loss.backward(retain_graph = True)
 
-            # Update eligs with standard partial derivative
+            # STEP 2: Update eligs with standard partial derivative of value func w.rt. weights
             new_eligs = []
             for i in range(0, len(self.funcapp) - 1):
                 gradients = self.funcapp[i].weight.grad.numpy()
                 new_eligs.append(np.add(self.eligs[i], gradients))
             self.eligs = np.array(new_eligs)
 
-            # Then update gradients with the elig contribution
+            # STEP 3: Now update gradients with the elig contribution
             for i in range(0, len(self.funcapp) - 1):
-                eligs = self.eligs[i]
-                self.funcapp[i].weight.grad *= torch.tensor(eligs, dtype=torch.float)
+                self.funcapp[i].weight.grad *= torch.tensor(self.eligs[i], dtype=torch.float)
 
-            # Now the weights can be updated
+            # STEP 4: Now can the weights be updated
             self.optimizer.step()
 
             return y_pred

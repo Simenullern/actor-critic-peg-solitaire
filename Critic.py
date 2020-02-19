@@ -34,19 +34,20 @@ class Critic:
             loss = self.funcapp.criterion(y_pred, y_target)
             loss.backward(retain_graph=True)
 
-            # STEP 2: Update eligs with standard partial derivative of value func w.rt. weights
+            # STEP 2: Update eligs in the direction of the partial derivative of value func w.rt. weights
             new_eligs = []
             for i in range(0, len(self.funcapp.net) - 1):
-                gradients = self.funcapp.net[i].weight.grad.numpy()
-                new_eligs.append(np.add(self.eligs[i], gradients))
+                deriv_val_func = (self.funcapp.net[i].weight.grad / -td_error).detach().numpy()
+                new_eligs.append(np.add(self.eligs[i], deriv_val_func))
             self.eligs = np.array(new_eligs)
 
             # STEP 3: Now update gradients with the elig contribution
             for i in range(0, len(self.funcapp.net) - 1):
-                self.funcapp.net[i].weight.grad *= torch.tensor(self.eligs[i], dtype=torch.float)
+                self.funcapp.net[i].weight.grad *= td_error * torch.tensor(self.eligs[i], dtype=torch.float)
 
             # STEP 4: Now can the weights be updated
             self.funcapp.optimizer.step()
+            self.funcapp.optimizer.zero_grad()
             return y_pred
 
         else:

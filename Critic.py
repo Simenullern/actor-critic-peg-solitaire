@@ -1,5 +1,6 @@
 import torch
 import numpy as np
+from Funcapp import Funcapp
 
 class Critic:
     def __init__(self, layers, use_nn=False, learning_rate=0.1,
@@ -11,21 +12,7 @@ class Critic:
         self.discount_factor = discount_factor
         self.value_func = None if use_nn else dict()
         self.eligs = [] if use_nn else dict()
-
-        # Everything below is to deal with the neural network as function approximator
-        self.funcapp = None
-        self.criterion = None
-        self.optimizer = None
-        if use_nn:
-            modules = []
-            for i in range(0, len(layers)-1):
-                modules.append(torch.nn.Linear((layers[i]), layers[i+1], bias=True))
-                self.eligs.append(np.zeros(modules[i].weight.shape))
-            modules.append(torch.nn.Sigmoid())
-            self.funcapp = torch.nn.Sequential(*modules).train()
-            self.eligs= np.array(self.eligs)
-            self.criterion = torch.nn.MSELoss(reduction='sum')
-            self.optimizer = torch.optim.Adam(self.funcapp.parameters(), lr=self.learning_rate)
+        self.funcapp = Funcapp(self, layers, learning_rate) if use_nn else None
 
     def init_state_value_if_needed(self, state):
         if not self.use_nn and state not in self.value_func.keys():
@@ -34,7 +21,7 @@ class Critic:
     def get_value(self, state):
         if self.use_nn:
             X = self.vectorize_state(state)
-            return self.funcapp(X)
+            return self.funcapp.forward(X)
         else:
             self.init_state_value_if_needed(state)
             return self.value_func[state]
@@ -43,25 +30,24 @@ class Critic:
         if self.use_nn:
             # STEP 1: backprop TD_error to get gradients
             X = Critic.vectorize_state(state)
-            y_pred = self.funcapp(X)
+            y_pred = self.funcapp.forward(X)
             y_target = td_error + y_pred
-            loss = self.criterion(y_pred, y_target)
-            loss.backward(retain_graph = True)
+            loss = self.funcapp.criterion(y_pred, y_target)
+            loss.backward(retain_graph=True)
 
             # STEP 2: Update eligs with standard partial derivative of value func w.rt. weights
             new_eligs = []
-            for i in range(0, len(self.funcapp) - 1):
-                gradients = self.funcapp[i].weight.grad.numpy()
+            for i in range(0, len(self.funcapp.net) - 1):
+                gradients = self.funcapp.net[i].weight.grad.numpy()
                 new_eligs.append(np.add(self.eligs[i], gradients))
             self.eligs = np.array(new_eligs)
 
             # STEP 3: Now update gradients with the elig contribution
-            for i in range(0, len(self.funcapp) - 1):
-                self.funcapp[i].weight.grad *= torch.tensor(self.eligs[i], dtype=torch.float)
+            for i in range(0, len(self.funcapp.net) - 1):
+                self.funcapp.net[i].weight.grad *= torch.tensor(self.eligs[i], dtype=torch.float)
 
             # STEP 4: Now can the weights be updated
-            self.optimizer.step()
-
+            self.funcapp.optimizer.step()
             return y_pred
 
         else:
@@ -72,12 +58,7 @@ class Critic:
         return self.eligs if self.use_nn else self.eligs[state]
 
     def set_elig(self, state, value):
-        if self.use_nn:
-            for layer in range(0, len(self.eligs)):
-                for row in range(0, len(self.eligs[layer])):
-                    for col in range(0, len(self.eligs[layer][row])):
-                        self.eligs[layer][row][col] = value
-        else:
+        if not self.use_nn:
             self.eligs[state] = value
 
     def update_elig(self, state, critic_elig):

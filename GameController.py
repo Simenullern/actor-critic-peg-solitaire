@@ -1,8 +1,9 @@
 import random
 
 class GameController:
-    def __init__(self, board, visualize=False):
+    def __init__(self, board, reward, visualize):
         self.board = board
+        self.reward = reward
         self.visualize = visualize
         self.states = []
         self.actions = []

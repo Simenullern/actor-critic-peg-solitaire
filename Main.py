@@ -5,15 +5,15 @@ from Critic import Critic
 import matplotlib.pyplot as plt
 import time
 
-NUM_EPISODES = 3000
+NUM_EPISODES = 1000
 VERBOSE_GAME_OUTCOME = True
 VISUALIZE_ALL_GAMES = False
 VISUALIZE_FINAL_TARGET_POLICY = True
 SLEEP_BETWEEN_MOVES = 0
 
-BOARD_SHAPE = 'triangle'
-BOARD_SIZE = 5
-OPEN_START_CELLS = [(3, 2)]
+BOARD_SHAPE = 'diamond'
+BOARD_SIZE = 4
+OPEN_START_CELLS = [(2, 1)]
 
 LEARNING_RATE_ACTOR = 0.3
 ELIG_DECAY_RATE_ACTOR = 0.75
@@ -21,17 +21,19 @@ DISCOUNT_FACTOR_ACTOR = 0.9
 EPISILON = 0.5
 EPISILON_DECAY_RATE = 0.5
 
-LEARNING_RATE_CRITIC = 0.01
+LEARNING_RATE_CRITIC = 0.05
 ELIG_DECAY_RATE_CRITIC = 0.75
 DISCOUNT_FACTOR_CRITIC = 0.9
 
-USE_NN = False
-LAYERS = (Board.get_number_of_cells(BOARD_SIZE, BOARD_SHAPE), 4, 1)
+REWARD_IF_GAME_WON = 100
+
+USE_NN = True
+LAYERS = (Board.get_number_of_cells(BOARD_SIZE, BOARD_SHAPE), 8, 4, 1)
 
 if __name__ == '__main__':
 
     board = Board(shape=BOARD_SHAPE, size=BOARD_SIZE, open_start_cells=OPEN_START_CELLS)
-    game_controller = GameController(board, visualize=VISUALIZE_ALL_GAMES)
+    game_controller = GameController(board, reward=REWARD_IF_GAME_WON, visualize=VISUALIZE_ALL_GAMES)
     actor = Actor(learning_rate=LEARNING_RATE_ACTOR, elig_decay_rate=ELIG_DECAY_RATE_ACTOR,
                   discount_factor=DISCOUNT_FACTOR_ACTOR, epsilon=EPISILON,
                   random_move_generator=game_controller.get_random_move)
@@ -77,7 +79,6 @@ if __name__ == '__main__':
             actor_elig = actor.get_elig(state, action)
 
             no_of_steps_to_rewind = len(game_controller.get_actions_in_episode())
-
             # I move backwards through the game states and then update the
             # eligibility as a constant times the successor state eligibility
             for move in range(no_of_steps_to_rewind-1, -1, -1):

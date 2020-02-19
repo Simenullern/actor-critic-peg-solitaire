@@ -6,7 +6,7 @@ warnings.filterwarnings("ignore")
 
 
 class Board:
-    def __init__(self, shape='diamond', size=5, open_start_cells=[(2,2), (0,0)]):
+    def __init__(self, shape, size, open_start_cells):
         assert(shape == "diamond" or shape == "triangle")
         assert(4 <= size <= 8 if shape == "triangle" else 3 <= size <= 6)
         self.shape = shape

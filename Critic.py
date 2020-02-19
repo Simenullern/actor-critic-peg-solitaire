@@ -3,8 +3,7 @@ import numpy as np
 from Funcapp import Funcapp
 
 class Critic:
-    def __init__(self, layers, use_nn=False, learning_rate=0.1,
-                 elig_decay_rate=0.9, discount_factor=0.9):
+    def __init__(self, layers, use_nn, learning_rate, elig_decay_rate, discount_factor):
 
         self.use_nn = use_nn
         self.learning_rate = learning_rate

@@ -27,7 +27,7 @@ class Critic:
 
     def update_value_func(self, state, td_error, critic_elig):
         if self.use_nn:
-            # STEP 1: backprop TD_error to get gradients
+            # STEP 1: backprop TD_error to get gradients of loss
             X = Critic.vectorize_state(state)
             y_pred = self.funcapp.forward(X)
             y_target = td_error + y_pred

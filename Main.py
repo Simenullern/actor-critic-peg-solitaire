@@ -5,15 +5,15 @@ from Critic import Critic
 import matplotlib.pyplot as plt
 import time
 
-NUM_EPISODES = 1000
+NUM_EPISODES = 300
 VERBOSE_GAME_OUTCOME = True
 VISUALIZE_ALL_GAMES = False
 VISUALIZE_FINAL_TARGET_POLICY = True
 SLEEP_BETWEEN_MOVES = 0
 
-BOARD_SHAPE = 'triangle'
-BOARD_SIZE = 5
-OPEN_START_CELLS = [(3, 2)]
+BOARD_SHAPE = 'diamond'
+BOARD_SIZE = 4
+OPEN_START_CELLS = [(2, 1)]
 
 LEARNING_RATE_ACTOR = 0.3
 ELIG_DECAY_RATE_ACTOR = 0.75
@@ -27,7 +27,7 @@ DISCOUNT_FACTOR_CRITIC = 0.9
 
 REWARD_IF_GAME_WON = 100
 
-USE_NN = True
+USE_NN = False
 LAYERS = (Board.get_number_of_cells(BOARD_SIZE, BOARD_SHAPE), 4, 1)
 
 if __name__ == '__main__':
